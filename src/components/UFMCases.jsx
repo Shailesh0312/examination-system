@@ -59,7 +59,26 @@ export default function UFMCases({ ufmCases, onAdd, onDelete, date, setDate, slo
       setForm({ ...BLANK });
       prevRoom.current = "";
       setAddModal(false);
-    } catch (err) { setAddError(err instanceof Error ? err.message : String(err)); }
+    } catch (err) { 
+      console.error("UFM Add Error:", err);
+      let errorMsg = "Failed to add UFM case. ";
+      if (err instanceof Error) {
+        errorMsg += err.message;
+      } else if (typeof err === 'object' && err !== null) {
+        // Handle Supabase error responses
+        const supabaseError = err;
+        if (supabaseError.message) {
+          errorMsg += supabaseError.message;
+        } else if (supabaseError.error) {
+          errorMsg += supabaseError.error.message || JSON.stringify(supabaseError.error);
+        } else {
+          errorMsg += "Table may not exist. Please run SUPABASE_SETUP.sql in Supabase SQL Editor.";
+        }
+      } else if (typeof err === 'string') {
+        errorMsg += err;
+      }
+      setAddError(errorMsg);
+    }
     finally { setAdding(false); }
   };
 
