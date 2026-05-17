@@ -165,7 +165,7 @@ export default function LoginPage({ onLogin }) {
           display: "flex",
           alignItems: isMobile ? "center" : "flex-start",
           justifyContent: "center",
-          padding: isSmallMobile ? "16px" : isMobile ? "20px 16px" : "40px 32px 40px 32px",
+          padding: isSmallMobile ? "16px" : isMobile ? "0px" : "40px 32px 40px 32px",
           width: isMobile ? "100%" : "auto",
           minHeight: "100vh",
         }}
