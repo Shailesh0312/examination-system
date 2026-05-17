@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = "https://oyuxvmmpzlfzeuxrxqxm.supabase.co";
-const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dXh2bW1wemxmemV1eHJ4cXhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcxMzI5MDgsImV4cCI6MjA2MjcwODkwOH0.Y-xRdgMHmQJMDTfGZRyGr_MZ6P1v-YpMfXDXZVAlW6I";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95dXh2bW1wemxmemV1eHJ4cXhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1OTgzMTUsImV4cCI6MjA5NDE3NDMxNX0.KcZrY_T793YPZ7cOc4pwiduCYlNBYzfpDJ_BVUzUhVQ";
 
 let _sb = null;
 
