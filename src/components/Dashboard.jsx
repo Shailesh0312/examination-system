@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { DateSlotPicker, StatCard, Badge } from "./ui";
 import { fmtDate, C, S } from "../lib/constants";
 
@@ -12,6 +12,15 @@ export default function Dashboard({
   setSlot,
   isReadOnly,
 }) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
   const rows = duties.filter(
     (d) =>
       d.date === date &&
@@ -164,7 +173,7 @@ export default function Dashboard({
         </div>
       )}
       <div
-        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}
+        style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 12 : 16, marginBottom: isMobile ? 12 : 16 }}
       >
         <div style={{ ...S.card, padding: 18 }}>
           <div

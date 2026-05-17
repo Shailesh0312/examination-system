@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Modal, Badge } from "./ui";
 import { fmtDate, C, S, DUTY_DONE } from "../lib/constants";
 
@@ -6,6 +6,14 @@ export default function DutyCount({ duties }) {
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState("counted");
   const [drillFaculty, setDrillFaculty] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const stats = useMemo(() => {
     const map = {};
@@ -83,7 +91,7 @@ export default function DutyCount({ duties }) {
         <span style={{ fontSize: 11, color: C.textDim, marginLeft: 8 }}>| Standby not deployed → NOT counted</span>
       </div>
       <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap", alignItems: "center" }}>
-        <input placeholder="Search faculty..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ ...S.inp, width: 220 }} />
+        <input placeholder="Search faculty..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ ...S.inp, width: isMobile ? '100%' : 220 }} />
         <span style={{ fontSize: 11, color: C.textMid }}>Sort:</span>
         {[
           ["counted", "Count"],

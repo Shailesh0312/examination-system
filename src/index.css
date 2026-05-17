@@ -30,6 +30,63 @@
   }
 }
 
+/* Responsive Design - Mobile First Variables */
+:root {
+  --sidebar-width: 220px;
+  --sidebar-width-mobile: 260px;
+  --header-height: 60px;
+  --content-padding: 28px 32px;
+  --content-padding-mobile: 16px;
+  --touch-target-min: 44px;
+  --modal-max-width: 95vw;
+  --card-padding: 20px;
+  --card-padding-mobile: 14px;
+  --input-height: 42px;
+  --input-height-mobile: 48px;
+  --border-radius: 10px;
+  --border-radius-mobile: 8px;
+}
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+  :root {
+    --content-padding: 20px 24px;
+    --sidebar-width: 180px;
+  }
+}
+
+/* Mobile (< 768px) */
+@media (max-width: 768px) {
+  :root {
+    --content-padding: 14px 16px;
+    --sidebar-width: var(--sidebar-width-mobile);
+    --card-padding: 14px;
+    --input-height: var(--input-height-mobile);
+    --border-radius: var(--border-radius-mobile);
+  }
+  
+  /* Touch-friendly defaults */
+  button, 
+  input, 
+  select, 
+  textarea {
+    min-height: var(--touch-target-min);
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Better touch scrolling */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Small mobile (< 400px) */
+@media (max-width: 400px) {
+  :root {
+    --content-padding: 12px 14px;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #9ca3af;
@@ -108,4 +165,185 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+/* ============ MOBILE TOUCH OPTIMIZATION ============ */
+
+/* Touch-friendly scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-mid);
+}
+
+/* Better button touch states */
+button:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}
+
+/* Checkbox/radio touch targets */
+input[type="checkbox"],
+input[type="radio"] {
+  min-width: 22px;
+  min-height: 22px;
+  cursor: pointer;
+}
+
+/* Mobile table card view base styles */
+.mobile-card-view {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mobile-card-row {
+  background: var(--card-bg, #111a38);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mobile-card-cell {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.mobile-card-label {
+  font-size: 11px;
+  color: var(--text-mid);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.mobile-card-value {
+  font-size: 13px;
+  color: var(--text);
+  text-align: right;
+  font-weight: 500;
+}
+
+/* Responsive container */
+.responsive-container {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Hide on mobile */
+.mobile-hidden {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .mobile-hidden {
+    display: block;
+  }
+}
+
+/* Show on mobile only */
+.desktop-hidden {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .desktop-hidden {
+    display: none;
+  }
+}
+
+/* Hamburger menu button (visible on mobile) */
+.hamburger-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .hamburger-btn {
+    display: flex;
+  }
+}
+
+/* Sidebar overlay for mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 150;
+  backdrop-filter: blur(2px);
+}
+
+.sidebar-overlay.active {
+  display: block;
+}
+
+/* Responsive inputs */
+.responsive-input {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .responsive-input {
+    width: auto;
+  }
+}
+
+/* Responsive grid */
+@media (max-width: 768px) {
+  .responsive-grid-2 {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .responsive-grid-3 {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+/* Stat cards responsive */
+@media (max-width: 600px) {
+  .stat-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .stat-card {
+    flex: 1 1 calc(50% - 5px);
+    min-width: 100px;
+  }
 }

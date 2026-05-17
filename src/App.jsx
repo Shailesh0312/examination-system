@@ -48,7 +48,30 @@ export default function App() {
   const [slot, setSlotRaw] = useState("I");
   const [loading, setLoading] = useState(true);
   const [syncStatus, setSyncStatus] = useState("syncing");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const isReadOnly = user ? READ_ONLY_ROLES.includes(user.role) : false;
+
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(false);
+      }
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Close sidebar on mobile when changing views
+  const handleSetView = useCallback((newView) => {
+    setView(newView);
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  }, [isMobile]);
 
   useEffect(() => {
     if (!window.XLSX) {
@@ -277,7 +300,7 @@ export default function App() {
 
   const shared = { date, setDate, slot, setSlot };
   const views = {
-    dashboard: <Dashboard duties={duties} controlRows={controlRows} setView={setView} isReadOnly={isReadOnly} {...shared} />,
+    dashboard: <Dashboard duties={duties} controlRows={controlRows} setView={handleSetView} isReadOnly={isReadOnly} {...shared} />,
     import: <ImportPanel duties={duties} onImportConfirm={onImportConfirm} setFacultyMaster={setFacultyMaster} isReadOnly={isReadOnly} saving={syncStatus === "syncing"} {...shared} />,
     liveops: <LiveOps duties={duties} onUpdateDuty={onUpdateDuty} onAddDuty={onAddDuty} onDeleteDuty={onDeleteDuty} isReadOnly={isReadOnly} facultyMaster={facultyMaster} onAddToControlRoom={onAddToControlRoom} {...shared} />,
     controlroom: <ControlRoomPage controlRows={controlRows} onAddControl={onAddControl} onDeleteControl={onDeleteControl} duties={duties} isReadOnly={isReadOnly} {...shared} />,
@@ -291,16 +314,64 @@ export default function App() {
   };
 
   return (
-    <div style={{ fontFamily: "system-ui,-apple-system,'Segoe UI',sans-serif", background: C.bg, color: C.text, display: "flex", minHeight: "100vh", overflow: "hidden" }}>
-      <Sidebar view={view} setView={setView} todayIssues={todayIssues} user={user} syncStatus={syncStatus} isReadOnly={isReadOnly} />
-      <main style={{ flex: 1, overflowY: "auto" }}>
-        <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", padding: "12px 28px", borderBottom: "1px solid " + C.border, background: C.surface, position: "sticky", top: 0, zIndex: 100 }}>
+    <div style={{ fontFamily: "system-ui,-apple-system,'Segoe UI',sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
+      {/* Mobile overlay */}
+      {isMobile && sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.6)",
+            zIndex: 150,
+            backdropFilter: "blur(2px)",
+          }}
+        />
+      )}
+      <Sidebar 
+        view={view} 
+        setView={handleSetView} 
+        todayIssues={todayIssues} 
+        user={user} 
+        syncStatus={syncStatus} 
+        isReadOnly={isReadOnly}
+        isMobile={isMobile}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+      <main style={{ marginLeft: isMobile ? 0 : 220, minHeight: "100vh", overflowY: "auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: isMobile ? "10px 16px" : "12px 28px", borderBottom: "1px solid " + C.border, background: C.surface, position: "sticky", top: 0, zIndex: 100 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {isMobile && (
+              <button
+                onClick={() => setSidebarOpen(true)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: C.text,
+                  fontSize: 24,
+                  cursor: "pointer",
+                  padding: 8,
+                  minWidth: 44,
+                  minHeight: 44,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                ☰
+              </button>
+            )}
+          </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <span style={{ fontSize: 12, color: C.textMid }}>{user.name} <span style={{ color: C.textDim }}>({user.role})</span></span>
-            <button onClick={() => setUser(null)} style={{ padding: "6px 16px", background: C.accentGrad, border: "none", borderRadius: 6, color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 700 }}>Sign Out</button>
+            <button onClick={() => setUser(null)} style={{ padding: "6px 16px", background: C.accentGrad, border: "none", borderRadius: 6, color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 700, minHeight: 36 }}>Sign Out</button>
           </div>
         </div>
-        <div style={{ padding: "28px 32px 56px" }}>{views[view]}</div>
+        <div style={{ padding: isMobile ? "16px 16px 40px" : "28px 32px 56px" }}>{views[view]}</div>
       </main>
     </div>
   );

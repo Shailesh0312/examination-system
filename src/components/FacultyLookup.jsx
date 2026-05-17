@@ -1,10 +1,18 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { BtnP, BtnG } from "./ui";
 import { fmtDate, C, S, DUTY_DONE } from "../lib/constants";
 
 export default function FacultyLookup({ duties = [] }) {
   const [search, setSearch] = useState("");
   const [viewDuties, setViewDuties] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const facultyList = useMemo(() => {
     const map = {};
@@ -80,7 +88,7 @@ export default function FacultyLookup({ duties = [] }) {
             placeholder="Search by name, ID, department or mobile..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ ...S.inp, width: 320 }}
+            style={{ ...S.inp, width: isMobile ? '100%' : 320 }}
           />
           <span style={{ fontSize: 12, color: C.textDim }}>
             {filtered.length > 0 ? `${filtered.length} results` : ""}

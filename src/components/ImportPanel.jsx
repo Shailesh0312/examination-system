@@ -63,6 +63,14 @@ export default function ImportPanel({
   const [facultyRows, setFacRows] = useState([]);
   const roomFileRef = useRef();
   const facFileRef = useRef();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   useEffect(() => {
     setPreview([]);
@@ -316,7 +324,7 @@ export default function ImportPanel({
         </div>
       )}
       <div
-        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}
+        style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 12 : 16, marginBottom: isMobile ? 12 : 16 }}
       >
         <div
           style={{

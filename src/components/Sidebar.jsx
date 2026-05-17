@@ -21,16 +21,49 @@ export default function Sidebar({
   user,
   syncStatus,
   isReadOnly,
+  isMobile = false,
+  isOpen = true,
+  onClose = null,
 }) {
+  const handleNavClick = (navId) => {
+    setView(navId);
+    if (isMobile && onClose) {
+      onClose();
+    }
+  };
+
+  const sidebarStyle = isMobile
+    ? {
+        position: "fixed",
+        left: isOpen ? 0 : -260,
+        top: 0,
+        bottom: 0,
+        width: 260,
+        zIndex: 200,
+        transition: "left 0.25s ease",
+        boxShadow: isOpen ? "4px 0 20px rgba(0,0,0,0.5)" : "none",
+        overflowY: "auto",
+      }
+    : {
+        position: "fixed",
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: 220,
+        zIndex: 100,
+        overflowY: "auto",
+      };
+
   return (
     <div
       style={{
-        width: 220,
+        ...sidebarStyle,
         borderRight: "1px solid " + C.border,
         display: "flex",
         flexDirection: "column",
         flexShrink: 0,
-        minHeight: "100vh",
+        background: C.bg,
+        ...(isMobile && { minHeight: "100vh" }),
       }}
     >
       <div
@@ -38,38 +71,63 @@ export default function Sidebar({
           background: C.headerGrad,
           padding: "18px 18px 16px",
           borderBottom: "1px solid " + C.border,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
       >
-        <div
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 10,
-            background: C.goldGrad,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 20,
-            marginBottom: 10,
-          }}
-        >
-          🎓
+        <div>
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 10,
+              background: C.goldGrad,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 20,
+              marginBottom: 10,
+            }}
+          >
+            🎓
+          </div>
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 800,
+              color: "#fff",
+              letterSpacing: "0.03em",
+              lineHeight: 1.4,
+              marginBottom: 2,
+            }}
+          >
+            {APP_NAME}
+          </div>
+          <div style={{ fontSize: 10, color: C.textMid, lineHeight: 1.4 }}>
+            {COLLEGE}
+          </div>
         </div>
-        <div
-          style={{
-            fontSize: 12,
-            fontWeight: 800,
-            color: "#fff",
-            letterSpacing: "0.03em",
-            lineHeight: 1.4,
-            marginBottom: 2,
-          }}
-        >
-          {APP_NAME}
-        </div>
-        <div style={{ fontSize: 10, color: C.textMid, lineHeight: 1.4 }}>
-          {COLLEGE}
-        </div>
+        {isMobile && isOpen && onClose && (
+          <button
+            onClick={onClose}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "#8fa8d0",
+              fontSize: 24,
+              cursor: "pointer",
+              padding: 8,
+              minWidth: 44,
+              minHeight: 44,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            ×
+          </button>
+        )}
       </div>
       <div
         style={{
@@ -185,7 +243,7 @@ export default function Sidebar({
           return (
             <div
               key={n.id}
-              onClick={() => setView(n.id)}
+              onClick={() => handleNavClick(n.id)}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -198,6 +256,7 @@ export default function Sidebar({
                 fontSize: 13,
                 fontWeight: active ? 700 : 400,
                 userSelect: "none",
+                minHeight: 44,
               }}
             >
               <span style={{ fontSize: 13, minWidth: 14 }}>{n.icon}</span>

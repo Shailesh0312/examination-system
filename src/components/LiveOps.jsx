@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { DateSlotPicker, Modal, Field, BtnP, BtnG, Badge } from "./ui";
 import {
   fmtDate,
@@ -56,6 +56,14 @@ export default function LiveOps({
     dutyType: "Invigilation",
     students: 0,
   });
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const allRows = duties.filter((d) => d.date === date && d.slot === slot);
   const rows = allRows.filter((d) => !d.isReserved && d.status !== "reserved");
@@ -281,7 +289,7 @@ export default function LiveOps({
         </div>
       )}
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14, alignItems: "center" }}>
-        <input placeholder="Search name, ID, room..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ ...S.inp, width: 240 }} />
+        <input placeholder="Search name, ID, room..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ ...S.inp, width: isMobile ? '100%' : 240 }} />
         {[
           ["all", "All"],
           ["issues", "Issues"],

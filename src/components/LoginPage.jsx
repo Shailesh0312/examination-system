@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { COLLEGE, EXAM_TITLE, APP_NAME, C, S, USERS } from "../lib/constants";
 
 export default function LoginPage({ onLogin }) {
@@ -7,6 +7,18 @@ export default function LoginPage({ onLogin }) {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
   const [show, setShow] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isSmallMobile, setIsSmallMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsSmallMobile(window.innerWidth < 400);
+    };
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const doLogin = () => {
     setLoading(true);
@@ -26,92 +38,95 @@ export default function LoginPage({ onLogin }) {
       style={{
         minHeight: "100vh",
         display: "flex",
+        flexDirection: isMobile ? "column" : "row",
         fontFamily: "system-ui,-apple-system,sans-serif",
         background: C.bg,
       }}
     >
       <div
         style={{
-          flex: "0 0 52%",
+          flex: isMobile ? "none" : "0 0 52%",
           background: C.headerGrad,
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "48px 52px",
-          borderRight: "1px solid " + C.border,
+          justifyContent: isMobile ? "center" : "space-between",
+          padding: isSmallMobile ? "20px 16px" : isMobile ? "24px 20px" : "48px 52px",
+          borderRight: isMobile ? "none" : "1px solid " + C.border,
+          borderBottom: isMobile ? "1px solid " + C.border : "none",
+          minHeight: isMobile ? 220 : "auto",
         }}
       >
         <div>
           <div
             style={{
-              width: 72,
-              height: 72,
-              borderRadius: 16,
+              width: isSmallMobile ? 48 : isMobile ? 56 : 72,
+              height: isSmallMobile ? 48 : isMobile ? 56 : 72,
+              borderRadius: isSmallMobile ? 12 : isMobile ? 14 : 16,
               background: C.goldGrad,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 34,
-              marginBottom: 24,
+              fontSize: isSmallMobile ? 24 : isMobile ? 28 : 34,
+              marginBottom: isSmallMobile ? 16 : isMobile ? 20 : 24,
             }}
           >
             🎓
           </div>
           <div
             style={{
-              fontSize: 30,
+              fontSize: isSmallMobile ? 20 : isMobile ? 22 : 30,
               fontWeight: 900,
               color: "#fff",
               lineHeight: 1.2,
-              marginBottom: 10,
+              marginBottom: 8,
             }}
           >
             {COLLEGE}
           </div>
           <div
             style={{
-              fontSize: 15,
+              fontSize: isSmallMobile ? 12 : isMobile ? 13 : 15,
               color: "rgba(255,255,255,0.6)",
-              marginBottom: 32,
+              marginBottom: isSmallMobile ? 20 : isMobile ? 24 : 32,
             }}
           >
             Faizabad Road, Lucknow — 226 028
           </div>
           <div
             style={{
-              width: 56,
+              width: isSmallMobile ? 40 : isMobile ? 48 : 56,
               height: 3,
               background: C.accentGrad,
               borderRadius: 2,
-              marginBottom: 32,
+              marginBottom: isSmallMobile ? 16 : isMobile ? 20 : 32,
             }}
           />
           <div
             style={{
               background: "rgba(8,13,46,0.65)",
               border: "1px solid rgba(139,0,0,0.45)",
-              borderRadius: 12,
-              padding: "16px 20px",
-              maxWidth: 380,
+              borderRadius: isSmallMobile ? 8 : 12,
+              padding: isSmallMobile ? "12px 14px" : "16px 20px",
+              maxWidth: isSmallMobile ? "100%" : 380,
             }}
           >
             <div
               style={{
-                fontSize: 11,
+                fontSize: isSmallMobile ? 10 : 11,
                 fontWeight: 800,
                 color: C.gold,
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
-                marginBottom: 8,
+                marginBottom: 6,
               }}
             >
               {APP_NAME}
             </div>
             <div
               style={{
-                fontSize: 12,
+                fontSize: isSmallMobile ? 11 : 12,
                 color: "rgba(255,255,255,0.72)",
-                lineHeight: 1.9,
+                lineHeight: 1.7,
               }}
             >
               {EXAM_TITLE}
@@ -120,13 +135,14 @@ export default function LoginPage({ onLogin }) {
         </div>
         <div
           style={{
-            borderTop: "1px solid rgba(255,255,255,0.1)",
-            paddingTop: 18,
+            borderTop: isMobile ? "none" : "1px solid rgba(255,255,255,0.1)",
+            paddingTop: isMobile ? 16 : 18,
+            marginTop: isMobile ? 20 : 0,
           }}
         >
           <div
             style={{
-              fontSize: 12,
+              fontSize: isSmallMobile ? 10 : isMobile ? 11 : 12,
               fontWeight: 800,
               color: C.gold,
               textTransform: "uppercase",
@@ -137,7 +153,7 @@ export default function LoginPage({ onLogin }) {
             Internal Quality Assurance Cell (IQAC)
           </div>
           <div
-            style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}
+            style={{ fontSize: isSmallMobile ? 10 : 11, color: "rgba(255,255,255,0.35)" }}
           >
             BBD City, Faizabad Road, Lucknow — 226 028
           </div>
@@ -145,28 +161,29 @@ export default function LoginPage({ onLogin }) {
       </div>
       <div
         style={{
-          flex: 1,
+          flex: isMobile ? "none" : 1,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: "40px 32px",
+          padding: isSmallMobile ? "16px" : isMobile ? "20px 16px" : "40px 32px",
+          width: isMobile ? "100%" : "auto",
         }}
       >
         <div
           style={{
             width: "100%",
-            maxWidth: 400,
+            maxWidth: isMobile ? "100%" : 400,
             background: C.card,
             border: "1px solid " + C.border2,
-            borderRadius: 16,
-            padding: "36px 36px 32px",
+            borderRadius: isSmallMobile ? 10 : isMobile ? 12 : 16,
+            padding: isSmallMobile ? "20px 16px" : isMobile ? "24px 20px" : "36px 36px 32px",
             boxShadow: "0 32px 80px rgba(0,0,0,0.5)",
           }}
         >
-          <div style={{ marginBottom: 28 }}>
+          <div style={{ marginBottom: isMobile ? 24 : 28 }}>
             <div
               style={{
-                fontSize: 22,
+                fontSize: isSmallMobile ? 18 : isMobile ? 20 : 22,
                 fontWeight: 800,
                 color: C.text,
                 marginBottom: 5,
@@ -174,23 +191,28 @@ export default function LoginPage({ onLogin }) {
             >
               Welcome Back
             </div>
-            <div style={{ fontSize: 13, color: C.textMid }}>
+            <div style={{ fontSize: isSmallMobile ? 12 : isMobile ? 12 : 13, color: C.textMid }}>
               Sign in to the Examination Portal
             </div>
           </div>
-          <div style={{ marginBottom: 16 }}>
-            <label style={S.label}>Username</label>
+          <div style={{ marginBottom: isMobile ? 14 : 16 }}>
+            <label style={{ ...S.label, fontSize: isMobile ? 12 : 11 }}>Username</label>
             <input
               value={u}
               onChange={(e) => setU(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && doLogin()}
               placeholder="Enter username"
-              style={{ ...S.inp, fontSize: 14 }}
+              style={{
+                ...S.inp,
+                fontSize: isMobile ? 15 : 14,
+                minHeight: isMobile ? 48 : "auto",
+                padding: isMobile ? "12px 14px" : "9px 12px",
+              }}
               autoFocus
             />
           </div>
-          <div style={{ marginBottom: 20 }}>
-            <label style={S.label}>Password</label>
+          <div style={{ marginBottom: isMobile ? 18 : 20 }}>
+            <label style={{ ...S.label, fontSize: isMobile ? 12 : 11 }}>Password</label>
             <div style={{ position: "relative" }}>
               <input
                 type={show ? "text" : "password"}
@@ -198,20 +220,31 @@ export default function LoginPage({ onLogin }) {
                 onChange={(e) => setP(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && doLogin()}
                 placeholder="Enter password"
-                style={{ ...S.inp, fontSize: 14, paddingRight: 46 }}
+                style={{
+                  ...S.inp,
+                  fontSize: isMobile ? 15 : 14,
+                  minHeight: isMobile ? 48 : "auto",
+                  padding: isMobile ? "12px 40px 12px 14px" : "9px 46px 9px 12px",
+                }}
               />
               <button
                 onClick={() => setShow((v) => !v)}
                 style={{
                   position: "absolute",
-                  right: 12,
+                  right: 8,
                   top: "50%",
                   transform: "translateY(-50%)",
                   background: "transparent",
                   border: "none",
                   cursor: "pointer",
                   color: C.textMid,
-                  fontSize: 15,
+                  fontSize: isMobile ? 20 : 15,
+                  minWidth: 44,
+                  minHeight: 44,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 8,
                 }}
               >
                 {show ? "🙈" : "👁"}
@@ -225,9 +258,9 @@ export default function LoginPage({ onLogin }) {
                 border: "1px solid #ef444444",
                 borderRadius: 7,
                 padding: "10px 14px",
-                fontSize: 13,
+                fontSize: isMobile ? 12 : 13,
                 color: C.red,
-                marginBottom: 16,
+                marginBottom: isMobile ? 14 : 16,
               }}
             >
               ⚠ {err}
@@ -238,15 +271,16 @@ export default function LoginPage({ onLogin }) {
             disabled={loading || !u || !p}
             style={{
               width: "100%",
-              padding: 13,
-              fontSize: 14,
+              padding: isMobile ? "14px" : 13,
+              fontSize: isMobile ? 15 : 14,
               fontWeight: 800,
               background: C.accentGrad,
               color: "#fff",
               border: "none",
-              borderRadius: 8,
+              borderRadius: isMobile ? 8 : 8,
               cursor: loading || !u || !p ? "not-allowed" : "pointer",
               opacity: loading || !u || !p ? 0.5 : 1,
+              minHeight: isMobile ? 48 : 44,
             }}
           >
             {loading ? "Authenticating..." : "Sign In →"}

@@ -227,6 +227,39 @@ export const S = {
   },
 };
 
+// ============ RESPONSIVE HELPERS ============
+
+// Check if we're on mobile
+export const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 768;
+
+// Check if we're on tablet
+export const isTablet = () => typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth < 1024;
+
+// Responsive input style - full width on mobile, fixed on desktop
+export const getResponsiveInputStyle = (mobileWidth = '100%', desktopWidth = 240) => ({
+  ...S.inp,
+  width: typeof window !== 'undefined' && window.innerWidth < 768 ? mobileWidth : desktopWidth,
+});
+
+// Responsive card padding
+export const getCardPadding = () => ({
+  ...S.card,
+  padding: typeof window !== 'undefined' && window.innerWidth < 768 ? 14 : 20,
+});
+
+// Responsive modal width
+export const getModalWidth = (maxWidth) => {
+  if (typeof window === 'undefined') return maxWidth;
+  return Math.min(maxWidth, window.innerWidth * 0.95);
+};
+
+// Responsive grid columns
+export const getGridColumns = (desktop = '1fr 1fr') => ({
+  display: 'grid',
+  gridTemplateColumns: typeof window !== 'undefined' && window.innerWidth < 768 ? '1fr' : desktop,
+  gap: 16,
+});
+
 export function getFairnessScore(f, duties) {
   const key = (f.facultyId || f.id || f.facultyName || "").trim().toLowerCase();
   let score = 0;

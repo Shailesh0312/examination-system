@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Modal, Field, BtnP, Badge } from "./ui";
 import { fmtDate, C, S, uid, DESIGNATIONS, XLSX_CDN } from "../lib/constants";
 
@@ -25,9 +25,17 @@ export default function ProctorialBoard({ proctorial, onAdd, onDelete, isReadOnl
   const [search, setSearch] = useState("");
   const [xlsxMsg, setXlsxMsg] = useState("");
   const [importing, setImporting] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const xlsxRef = useRef();
   const BLANK = { name: "", designation: "", department: "", mobile: "", school: "" };
   const [form, setForm] = useState(BLANK);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const filtered = search
     ? proctorial.filter((m) => (m.name + m.designation + m.department + m.mobile + m.school).toLowerCase().includes(search.toLowerCase()))
@@ -88,7 +96,7 @@ export default function ProctorialBoard({ proctorial, onAdd, onDelete, isReadOnl
         </div>
       )}
       <div style={{ display: "flex", gap: 10, marginBottom: 14, flexWrap: "wrap", alignItems: "center" }}>
-        <input placeholder="Search name, designation, school..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ ...S.inp, width: 260 }} />
+        <input placeholder="Search name, designation, school..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ ...S.inp, width: isMobile ? '100%' : 260 }} />
         <div style={{ background: C.purple + "12", border: "1px solid " + C.purple + "44", borderRadius: 7, padding: "7px 18px" }}>
           <span style={{ fontWeight: 900, fontSize: 18, color: C.purple }}>{proctorial.length}</span>
           <span style={{ fontSize: 11, color: C.purple, fontWeight: 700, textTransform: "uppercase", marginLeft: 6 }}>Members</span>
