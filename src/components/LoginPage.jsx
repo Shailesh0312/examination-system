@@ -163,10 +163,11 @@ export default function LoginPage({ onLogin }) {
         style={{
           flex: isMobile ? "none" : 1,
           display: "flex",
-          alignItems: "center",
+          alignItems: isMobile ? "center" : "flex-start",
           justifyContent: "center",
-          padding: isSmallMobile ? "16px" : isMobile ? "20px 16px" : "40px 32px",
+          padding: isSmallMobile ? "16px" : isMobile ? "20px 16px" : "40px 32px 40px 32px",
           width: isMobile ? "100%" : "auto",
+          minHeight: "100vh",
         }}
       >
         <div

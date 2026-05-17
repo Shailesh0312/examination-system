@@ -84,25 +84,20 @@ export default function WhatsAppMsg({ duties = [] }) {
     setShareModalOpen(true);
   };
 
-  // Send to current recipient in native share modal
-  const sendToCurrentRecipient = async () => {
-    if (!navigator.share) {
-      alert("Native share not supported on this device. Please use Copy to Clipboard.");
+  // Send to current recipient via WhatsApp Web
+  const sendToCurrentRecipient = () => {
+    const currentRecipient = selectedWithMobile[shareIndex];
+    if (!currentRecipient?.mobile) {
+      alert("No mobile number for this recipient");
       return;
     }
     
-    const currentRecipient = selectedWithMobile[shareIndex];
-    try {
-      await navigator.share({
-        title: 'Exam Duty Message',
-        text: nativeShareMsg,
-      });
-      setSentCount(prev => prev + 1);
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.error('Share error:', err);
-      }
-    }
+    // Open WhatsApp Web with pre-filled message
+    const link = getWhatsAppLink(currentRecipient.mobile, nativeShareMsg);
+    window.open(link, "_blank");
+    
+    // Mark as sent (user will actually send in WhatsApp)
+    setSentCount(prev => prev + 1);
   };
 
   // Navigate to next recipient
@@ -244,16 +239,20 @@ export default function WhatsAppMsg({ duties = [] }) {
                 <button
                   key={t.label}
                   onClick={() => {
-                    const msg = t.msg || customMsg;
-                    if (msg) {
-                      handleBulkOpen(msg);
+                    if (t.label === "Custom Message") {
+                      // Clear textarea and focus for custom message
+                      setCustomMsg("");
+                      // Focus will be handled by the textarea's ref
+                      const textarea = document.querySelector('#custom-msg-textarea');
+                      if (textarea) {
+                        setTimeout(() => textarea.focus(), 100);
+                      }
+                    } else if (t.msg) {
+                      // Fill with template message
+                      setCustomMsg(t.msg);
                     }
                   }}
-                  disabled={selected.size === 0 || isSending}
-                  style={{
-                    ...S.btnP,
-                    opacity: selected.size === 0 || isSending ? 0.5 : 1,
-                  }}
+                  style={S.btnP}
                 >
                   {t.label}
                 </button>
@@ -318,6 +317,7 @@ export default function WhatsAppMsg({ duties = [] }) {
             <div>
               <label style={S.label}>Custom Message</label>
               <textarea
+                id="custom-msg-textarea"
                 value={customMsg}
                 onChange={(e) => setCustomMsg(e.target.value)}
                 placeholder="Type your custom message here..."
@@ -410,7 +410,7 @@ export default function WhatsAppMsg({ duties = [] }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: "#e2e8f0", marginBottom: 4 }}>
-                  📱 Native Share Progress
+                  💬 WhatsApp Broadcast
                 </div>
                 <div style={{ fontSize: 12, color: C.textMid }}>
                   Sending to {selectedWithMobile.length} recipients
@@ -510,7 +510,7 @@ export default function WhatsAppMsg({ duties = [] }) {
                   minWidth: 140,
                 }}
               >
-                📤 Send Now
+                📱 Open WhatsApp
               </button>
               
               <button
@@ -540,7 +540,7 @@ export default function WhatsAppMsg({ duties = [] }) {
                 </span>
               )}
               {sentCount === 0 && shareIndex === 0 && (
-                <span>Tap "Send Now" to open WhatsApp share for this recipient</span>
+                <span>Tap "Open WhatsApp" to open WhatsApp with this message for this recipient</span>
               )}
             </div>
 
