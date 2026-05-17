@@ -62,21 +62,34 @@ export default function UFMCases({ ufmCases, onAdd, onDelete, date, setDate, slo
     } catch (err) { 
       console.error("UFM Add Error:", err);
       let errorMsg = "Failed to add UFM case. ";
+      
       if (err instanceof Error) {
         errorMsg += err.message;
-      } else if (typeof err === 'object' && err !== null) {
-        // Handle Supabase error responses
-        const supabaseError = err;
-        if (supabaseError.message) {
-          errorMsg += supabaseError.message;
-        } else if (supabaseError.error) {
-          errorMsg += supabaseError.error.message || JSON.stringify(supabaseError.error);
+      } else if (err && typeof err === 'object') {
+        // Handle various error formats
+        if (err.message) {
+          errorMsg += err.message;
+        } else if (err.error?.message) {
+          errorMsg += err.error.message;
+        } else if (err.code) {
+          errorMsg += `Error code: ${err.code}`;
+        } else if (err.status) {
+          errorMsg += `HTTP Status: ${err.status}`;
         } else {
-          errorMsg += "Table may not exist. Please run SUPABASE_SETUP.sql in Supabase SQL Editor.";
+          // Try to get any available property
+          const keys = Object.keys(err);
+          if (keys.length > 0) {
+            errorMsg += `Details: ${JSON.stringify(err).substring(0, 200)}`;
+          } else {
+            errorMsg += "Unknown error - check console for details.";
+          }
         }
       } else if (typeof err === 'string') {
         errorMsg += err;
+      } else {
+        errorMsg += "Unknown error occurred.";
       }
+      
       setAddError(errorMsg);
     }
     finally { setAdding(false); }
