@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { DateSlotPicker, StatCard, BtnP, BtnG } from "./ui";
-import { fmtDate, fmtDateLong, C, S, SLOT_TIMES } from "../lib/constants";
+import { fmtDate, fmtDateLong, fmtDateDMY, C, S, SLOT_TIMES, COLLEGE, EXAM_TITLE } from "../lib/constants";
 import { XLSX_CDN } from "../lib/supabase";
 
 export default function ExportSheet({ duties = [] }) {
@@ -33,20 +33,54 @@ export default function ExportSheet({ duties = [] }) {
     return { total, assigned, standby, control, ifs };
   }, [dayDuties]);
 
+  const getHeaderFooterInfo = () => {
+    const today = fmtDateDMY(new Date().toISOString().split("T")[0]);
+    return {
+      college: COLLEGE,
+      examTitle: EXAM_TITLE,
+      dateInfo: `${fmtDate(date)} - ${SLOT_TIMES[slot] || "Slot " + slot}`,
+      footerText: `Centre Superintendent, BBD University`,
+      dateGenerated: `Date: ${today}`,
+    };
+  };
+
   const handleExportExcel = () => {
     if (!xlsxReady || !dayDuties.length) return;
     const wb = window.XLSX.utils.book_new();
-    const data = dayDuties.map((d) => ({
-      Faculty: d.facultyName || "",
+
+    const data = dayDuties.map((d, i) => ({
+      "S.No": i + 1,
+      "Faculty Name": d.facultyName || "",
       Department: d.dept || "",
       Designation: d.designation || "",
       Mobile: d.mobile || "",
       Room: d.room || "-",
-      DutyType: d.dutyType || "Invigilation",
+      "Duty Type": d.dutyType || "Invigilation",
       Status: d.status || "present",
-      Students: d.students || 0,
+      Signature: "",
     }));
     const ws = window.XLSX.utils.json_to_sheet(data);
+
+    ws["!rows"] = [
+      { hpt: 20 },
+      { hpt: 20 },
+      { hpt: 20 },
+      ...Array(data.length + 2).fill({ hpt: 25 }),
+    ];
+
+    const colWidths = [
+      { wch: 6 },
+      { wch: 28 },
+      { wch: 18 },
+      { wch: 22 },
+      { wch: 14 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 12 },
+      { wch: 18 },
+    ];
+    ws["!cols"] = colWidths;
+
     window.XLSX.utils.book_append_sheet(wb, ws, "Duty Sheet");
     const dateStr = date || "all";
     window.XLSX.writeFile(wb, `DutySheet_${dateStr}_Shift${slot}.xlsx`);
@@ -54,6 +88,8 @@ export default function ExportSheet({ duties = [] }) {
 
   const handleExportPDF = () => {
     if (!dayDuties.length) return;
+    const { college, examTitle, dateInfo, footerText, dateGenerated } = getHeaderFooterInfo();
+    void college; void examTitle; void dateInfo; void footerText; void dateGenerated;
     const printWindow = window.open("", "_blank");
     const html = `
       <!DOCTYPE html>
@@ -61,29 +97,37 @@ export default function ExportSheet({ duties = [] }) {
       <head>
         <title>Duty Sheet - ${fmtDateLong(date)} Shift ${slot}</title>
         <style>
-          body { font-family: Arial, sans-serif; padding: 20px; }
-          h1 { color: #333; text-align: center; }
-          h2 { color: #666; text-align: center; margin-top: -10px; font-size: 14px; }
-          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
-          th { background: #f5f5f5; }
-          .slot-info { text-align: center; margin: 20px 0; }
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: Arial, sans-serif; padding: 30px 40px; }
+          .header { text-align: center; margin-bottom: 20px; }
+          .header h1 { font-size: 18px; color: #333; margin-bottom: 4px; }
+          .header h2 { font-size: 13px; color: #666; margin-bottom: 8px; font-weight: normal; }
+          .header .date-info { font-size: 12px; color: #555; font-weight: bold; }
+          table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+          th, td { border: 1px solid #444; padding: 10px; text-align: left; font-size: 11px; }
+          th { background: #f0f0f0; font-weight: bold; }
+          .footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #ccc; text-align: right; font-size: 11px; color: #666; page-break-after: always; }
+          .footer .superintendent { font-weight: bold; }
         </style>
       </head>
       <body>
-        <h1>Duty Sheet</h1>
-        <h2>${fmtDateLong(date)} - ${SLOT_TIMES[slot]}</h2>
+        <div class="header">
+          <h1>${college}</h1>
+          <h2>${examTitle}</h2>
+          <div class="date-info">${dateInfo}</div>
+        </div>
         <table>
           <thead>
             <tr>
-              <th>S.No</th>
-              <th>Faculty</th>
+              <th style="width:40px">S.No</th>
+              <th>Faculty Name</th>
               <th>Department</th>
               <th>Designation</th>
-              <th>Mobile</th>
-              <th>Room</th>
-              <th>Duty Type</th>
-              <th>Status</th>
+              <th style="width:100px">Mobile</th>
+              <th style="width:80px">Room</th>
+              <th style="width:100px">Duty Type</th>
+              <th style="width:80px">Status</th>
+              <th style="width:120px">Signature</th>
             </tr>
           </thead>
           <tbody>
@@ -92,19 +136,112 @@ export default function ExportSheet({ duties = [] }) {
                 (d, i) => `
               <tr>
                 <td>${i + 1}</td>
-                <td>${d.facultyName || ""}</td>
-                <td>${d.dept || ""}</td>
-                <td>${d.designation || ""}</td>
-                <td>${d.mobile || ""}</td>
-                <td>${d.room || "-"}</td>
+                <td><strong>${d.facultyName || ""}</strong></td>
+                <td>${d.dept || "-"}</td>
+                <td>${d.designation || "-"}</td>
+                <td>${d.mobile || "-"}</td>
+                <td style="font-weight:bold">${d.room || "-"}</td>
                 <td>${d.dutyType || "Invigilation"}</td>
                 <td>${d.status || "present"}</td>
+                <td></td>
               </tr>
             `
               )
               .join("")}
           </tbody>
         </table>
+        <div class="footer">
+          <span class="superintendent">${footerText}</span> &nbsp;|&nbsp; ${dateGenerated}
+        </div>
+      </body>
+      </html>
+    `;
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+  const handleExportRoomWisePDF = () => {
+    if (!dayDuties.length) return;
+    const { college, examTitle, dateInfo, footerText, dateGenerated } = getHeaderFooterInfo();
+
+    const rooms = {};
+    dayDuties.forEach((d) => {
+      const room = d.room || "Unassigned";
+      if (!rooms[room]) rooms[room] = [];
+      rooms[room].push(d);
+    });
+
+    const roomNames = Object.keys(rooms).sort();
+
+    let tablesHtml = "";
+    roomNames.forEach((room) => {
+      const roomDuties = rooms[room];
+      const rowsHtml = roomDuties
+        .map(
+          (d, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td style="font-size:13px"><strong>${d.facultyName || ""}</strong></td>
+          <td>${d.mobile || "-"}</td>
+          <td>${d.designation || "-"}</td>
+        </tr>
+      `
+        )
+        .join("");
+
+      tablesHtml += `
+        <div class="room-section">
+          <h3 class="room-header">Room: ${room}</h3>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:40px">S.No</th>
+                <th>Faculty Name</th>
+                <th style="width:100px">Mobile</th>
+                <th style="width:150px">Designation</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </div>
+      `;
+    });
+
+    const printWindow = window.open("", "_blank");
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Room-wise Duty Sheet - ${fmtDateLong(date)} Shift ${slot}</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: Arial, sans-serif; padding: 30px 40px; }
+          .header { text-align: center; margin-bottom: 20px; }
+          .header h1 { font-size: 18px; color: #333; margin-bottom: 4px; }
+          .header h2 { font-size: 13px; color: #666; margin-bottom: 8px; font-weight: normal; }
+          .header .date-info { font-size: 12px; color: #555; font-weight: bold; }
+          .room-section { margin-bottom: 25px; page-break-inside: avoid; }
+          .room-header { font-size: 14px; color: #8B0000; margin-bottom: 8px; font-weight: bold; background: #f5f5f5; padding: 6px 10px; border-left: 4px solid #8B0000; }
+          table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+          th, td { border: 1px solid #444; padding: 8px; text-align: left; font-size: 11px; }
+          th { background: #f0f0f0; font-weight: bold; }
+          .footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #ccc; text-align: right; font-size: 11px; color: #666; page-break-after: always; }
+          .footer .superintendent { font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>${college}</h1>
+          <h2>${examTitle}</h2>
+          <div class="date-info">${dateInfo}</div>
+        </div>
+        ${tablesHtml}
+        <div class="footer">
+          <span class="superintendent">${footerText}</span> &nbsp;|&nbsp; ${dateGenerated}
+        </div>
       </body>
       </html>
     `;
@@ -136,10 +273,13 @@ export default function ExportSheet({ duties = [] }) {
           </div>
         )}
 
-        <div style={{ display: "flex", gap: 10 }}>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <BtnP onClick={handleExportExcel} disabled={!xlsxReady || !dayDuties.length}>
             {xlsxReady ? "Export Excel" : "Loading..."}
           </BtnP>
+          <BtnG onClick={handleExportRoomWisePDF} disabled={!dayDuties.length}>
+            Export Room-wise
+          </BtnG>
           <BtnG onClick={handleExportPDF} disabled={!dayDuties.length}>
             Export PDF
           </BtnG>

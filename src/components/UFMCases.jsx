@@ -29,6 +29,19 @@ export default function UFMCases({ ufmCases, onAdd, onDelete, date, setDate, slo
 
   const slotCases = useMemo(() => [...ufmCases].filter((c) => c.date === date && (c.slot === slot || c.shift === slot)).sort((a, b) => new Date(b.ts || 0) - new Date(a.ts || 0)), [ufmCases, date, slot]);
 
+  const ufmDates = useMemo(() => {
+    const dateMap = {};
+    ufmCases.forEach((c) => {
+      if (c.date) {
+        if (!dateMap[c.date]) dateMap[c.date] = 0;
+        dateMap[c.date]++;
+      }
+    });
+    return Object.entries(dateMap)
+      .map(([d, count]) => ({ date: d, count }))
+      .sort((a, b) => b.date.localeCompare(a.date));
+  }, [ufmCases]);
+
   const doAdd = async () => {
     const f = {
       rollNo: String(form.rollNo || "").trim(),
@@ -133,6 +146,33 @@ export default function UFMCases({ ufmCases, onAdd, onDelete, date, setDate, slo
         <StatCard value={slotCases.filter((c) => c.docLink).length} label="Docs Uploaded" color={C.green} />
         <StatCard value={slotCases.filter((c) => !c.docLink).length} label="Pending Docs" color={C.yellow} />
       </div>
+      {ufmDates.length > 0 && (
+        <div style={{ marginBottom: 18 }}>
+          <div style={{ fontSize: 11, color: C.textMid, marginBottom: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            Dates with UFM Cases
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {ufmDates.map(({ date: d, count }) => (
+              <button
+                key={d}
+                onClick={() => setDate(d)}
+                style={{
+                  padding: "7px 14px",
+                  borderRadius: 7,
+                  border: date === d ? "none" : "1px solid " + C.border,
+                  background: date === d ? C.red + "22" : "#111a38",
+                  color: date === d ? C.red : C.text,
+                  cursor: "pointer",
+                  fontSize: 12,
+                  fontWeight: 700,
+                }}
+              >
+                📅 {fmtDate(d)} <span style={{ color: C.textMid, marginLeft: 4 }}>({count})</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {slotCases.length === 0 ? (
         <div style={{ textAlign: "center", padding: "60px 20px", color: C.textDim, border: "1px dashed " + C.border, borderRadius: 10 }}>
           <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.3 }}>⚠</div>

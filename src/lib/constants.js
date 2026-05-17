@@ -110,6 +110,14 @@ export const fmtDateLong = (d) =>
         year: "numeric",
       })
     : "";
+export const fmtDateDMY = (d) =>
+  d
+    ? new Date(d + "T00:00:00").toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+    : "";
 export const shuffle = (arr) => {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
