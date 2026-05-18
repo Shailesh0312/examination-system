@@ -43,30 +43,31 @@ export default function LoginPage({ onLogin }) {
         background: C.bg,
       }}
     >
-      <div
-        style={{
-          flex: isMobile ? "none" : "0 0 52%",
-          background: C.headerGrad,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: isMobile ? "center" : "space-between",
-          padding: isSmallMobile ? "20px 16px" : isMobile ? "24px 20px" : "48px 52px",
-          borderRight: isMobile ? "none" : "1px solid " + C.border,
-          borderBottom: isMobile ? "1px solid " + C.border : "none",
-          minHeight: isMobile ? 220 : "auto",
-        }}
-      >
+<div
+            style={{
+              flex: isMobile ? "none" : "0 0 52%",
+              background: C.headerGrad,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              padding: isSmallMobile ? "20px 16px" : isMobile ? "24px 20px" : "48px 52px",
+              borderRight: isMobile ? "none" : "1px solid " + C.border,
+              borderBottom: isMobile ? "1px solid " + C.border : "none",
+              minHeight: isMobile ? 220 : "100vh",
+              boxSizing: "border-box",
+            }}
+          >
         <div>
           <div
             style={{
-              width: isSmallMobile ? 48 : isMobile ? 56 : 72,
-              height: isSmallMobile ? 48 : isMobile ? 56 : 72,
-              borderRadius: isSmallMobile ? 12 : isMobile ? 14 : 16,
+              width: isSmallMobile ? 56 : isMobile ? 64 : 88,
+              height: isSmallMobile ? 56 : isMobile ? 64 : 88,
+              borderRadius: isSmallMobile ? 14 : isMobile ? 16 : 20,
               background: C.goldGrad,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: isSmallMobile ? 24 : isMobile ? 28 : 34,
+              fontSize: isSmallMobile ? 28 : isMobile ? 32 : 42,
               marginBottom: isSmallMobile ? 16 : isMobile ? 20 : 24,
             }}
           >
@@ -74,11 +75,12 @@ export default function LoginPage({ onLogin }) {
           </div>
           <div
             style={{
-              fontSize: isSmallMobile ? 20 : isMobile ? 22 : 30,
+              fontSize: isSmallMobile ? 22 : isMobile ? 26 : 38,
               fontWeight: 900,
               color: "#fff",
-              lineHeight: 1.2,
+              lineHeight: 1.15,
               marginBottom: 8,
+              textAlign: "left",
             }}
           >
             {COLLEGE}
@@ -88,6 +90,7 @@ export default function LoginPage({ onLogin }) {
               fontSize: isSmallMobile ? 12 : isMobile ? 13 : 15,
               color: "rgba(255,255,255,0.6)",
               marginBottom: isSmallMobile ? 20 : isMobile ? 24 : 32,
+              textAlign: "left",
             }}
           >
             Faizabad Road, Lucknow — 226 028
@@ -160,16 +163,16 @@ export default function LoginPage({ onLogin }) {
         </div>
       </div>
       <div
-        style={{
-          flex: isMobile ? "none" : 1,
-          display: "flex",
-          alignItems: isMobile ? "center" : "flex-start",
-          justifyContent: "center",
-          padding: isSmallMobile ? "16px" : isMobile ? "0px" : "40px 32px 40px 32px",
-          width: isMobile ? "100%" : "auto",
-          minHeight: "100vh",
-        }}
-      >
+          style={{
+            flex: isMobile ? "none" : 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: isSmallMobile ? "16px" : isMobile ? "24px" : "48px 40px",
+            width: isMobile ? "100%" : "auto",
+            boxSizing: "border-box",
+          }}
+        >
         <div
           style={{
             width: "100%",

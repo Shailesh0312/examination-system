@@ -161,6 +161,121 @@ export default function ExportSheet({ duties = [] }) {
     printWindow.print();
   };
 
+  const handleExportRoomWiseExcel = () => {
+    if (!xlsxReady || !dayDuties.length) return;
+
+    const invigilationDuties = dayDuties.filter(
+      (d) => d.dutyType === "Invigilation" || (!d.dutyType && d.room && !d.isReserved)
+    );
+
+    if (!invigilationDuties.length) {
+      alert("No invigilation duties found for export.");
+      return;
+    }
+
+    const hd = getHeaderFooterInfo();
+    const wb = window.XLSX.utils.book_new();
+
+    const sheetData = [];
+
+    sheetData.push([hd.college]);
+    sheetData.push([hd.examTitle]);
+    sheetData.push([hd.dateInfo]);
+    sheetData.push([]);
+
+    const rooms = {};
+    invigilationDuties.forEach((d) => {
+      const room = d.room || "Unassigned";
+      if (!rooms[room]) rooms[room] = [];
+      rooms[room].push(d);
+    });
+
+    const roomNames = Object.keys(rooms).sort((a, b) => {
+      const numA = parseInt(a);
+      const numB = parseInt(b);
+      if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+      return a.localeCompare(b, undefined, { numeric: true });
+    });
+
+    roomNames.forEach((room) => {
+      const roomDuties = rooms[room];
+      sheetData.push([`Room: ${room}`]);
+      sheetData.push(["S.No", "Faculty Name", "Department", "Designation", "Mobile"]);
+
+      roomDuties.forEach((d, i) => {
+        sheetData.push([
+          i + 1,
+          d.facultyName || "",
+          d.dept || "",
+          d.designation || "",
+          d.mobile || "",
+        ]);
+      });
+
+      sheetData.push([]);
+    });
+
+    sheetData.push([`Centre Superintendent, BBD University | ${hd.dateGenerated}`]);
+
+    const ws = window.XLSX.utils.aoa_to_sheet(sheetData);
+    const totalRows = sheetData.length;
+    const totalCols = 5;
+
+    ws["!ref"] = `A1:${String.fromCharCode(64 + totalCols)}${totalRows}`;
+
+    ws["!merges"] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } },
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 4 } },
+      { s: { r: 2, c: 0 }, e: { r: 2, c: 4 } },
+    ];
+
+    let rowOffset = 0;
+    const titleRowStyle = { font: { bold: true, sz: 16 }, alignment: { horizontal: "center" } };
+    const subtitleRowStyle = { font: { sz: 12 }, alignment: { horizontal: "center" }, fill: { fgColor: { rgb: "E8E8E8" } } };
+    const dateRowStyle = { font: { bold: true, sz: 11 }, alignment: { horizontal: "center" } };
+
+    ws["A1"].s = titleRowStyle;
+    ws["A2"].s = subtitleRowStyle;
+    ws["A3"].s = dateRowStyle;
+    rowOffset = 4;
+
+    roomNames.forEach((room) => {
+      const roomDuties = rooms[room];
+      const roomRow = rowOffset;
+      ws["!merges"].push({ s: { r: roomRow, c: 0 }, e: { r: roomRow, c: 4 } });
+      ws[`A${roomRow + 1}`].s = { font: { bold: true, color: { rgb: "FFFFFF" }, sz: 13 }, fill: { fgColor: { rgb: "8B0000" } }, alignment: { horizontal: "left" } };
+      rowOffset += 1;
+
+      const headerRow = rowOffset;
+      ws["!merges"].push({ s: { r: headerRow, c: 0 }, e: { r: headerRow, c: 4 } });
+      for (let c = 0; c < totalCols; c++) {
+        ws[`${String.fromCharCode(65 + c)}${headerRow + 1}`].s = { font: { bold: true }, fill: { fgColor: { rgb: "F0F0F0" } }, alignment: { horizontal: "center" } };
+      }
+      rowOffset += 1;
+
+      rowOffset += roomDuties.length;
+      rowOffset += 1;
+    });
+
+    const footerRow = totalRows - 1;
+    ws["!merges"].push({ s: { r: footerRow, c: 0 }, e: { r: footerRow, c: 4 } });
+    ws[`A${footerRow + 1}`].s = { font: { italic: true, sz: 10 }, alignment: { horizontal: "right" } };
+
+    ws["!rows"] = Array.from({ length: totalRows }, () => ({ hpt: 20 }));
+
+    ws["!cols"] = [
+      { wch: 6 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 22 },
+      { wch: 15 },
+    ];
+
+    window.XLSX.utils.book_append_sheet(wb, ws, "Room-wise Duty");
+    const dateStr = date || "all";
+    window.XLSX.writeFile(wb, `RoomWiseDuties_${dateStr}_Shift${slot}.xlsx`);
+  };
+
   const handleExportRoomWisePDF = () => {
     if (!dayDuties.length) return;
     const { college, examTitle, dateInfo, footerText, dateGenerated } = getHeaderFooterInfo();
@@ -277,8 +392,11 @@ export default function ExportSheet({ duties = [] }) {
           <BtnP onClick={handleExportExcel} disabled={!xlsxReady || !dayDuties.length}>
             {xlsxReady ? "Export Excel" : "Loading..."}
           </BtnP>
+          <BtnP onClick={handleExportRoomWiseExcel} disabled={!xlsxReady || !dayDuties.length} style={xlsxReady ? { background: "linear-gradient(135deg," + C.green + ",#077a4f)" } : {}}>
+            {xlsxReady ? "Room-wise Duty" : "Loading..."}
+          </BtnP>
           <BtnG onClick={handleExportRoomWisePDF} disabled={!dayDuties.length}>
-            Export Room-wise
+            📄 Room-wise PDF
           </BtnG>
           <BtnG onClick={handleExportPDF} disabled={!dayDuties.length}>
             Export PDF
